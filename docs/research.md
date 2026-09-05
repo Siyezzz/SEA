@@ -70,3 +70,13 @@ Exploration should target worthwhile, learnable uncertainty. Unpredictable noise
 Persistent adaptation is useful if memories improve subsequent tasks, old capabilities remain stable, context costs stay controlled, and gains survive a new session and transfer tests. More Markdown files, longer reflections, or higher discovery-task scores are insufficient evidence.
 
 The next milestone is a real host integration with an independent evaluator and chronological held-out tasks. Establish experience-driven gains before pursuing automatic skill generation or self-modification of the improvement mechanism.
+
+## 7. Recursive evolution without a permanently fixed runner
+
+SEA's design principle is that every component may become an object of improvement: stored experience, retrieval, executable skills, the core learning protocol, the runner, scheduling, candidate generation, and evaluation methodology. An initial program must start the loop, but that does not make it permanently exempt from evolution. This is a design commitment, not a capability implemented by the current prototype.
+
+There need not be an endless stack of separately designed meta-runners. A versioned system can propose changes to its own implementation and test a successor. The currently running version evaluates a candidate in an isolated experiment; a validated successor takes over at a controlled boundary, retaining provenance and a recoverable predecessor. Runner changes must also preserve task state, budgets, and pending work across that boundary.
+
+Evaluation methods can evolve too. During a particular comparison, preserve the evaluation contract so that the candidate cannot win merely by redefining success. Proposed evaluator changes require separate calibration against independent outcomes and fresh held-out tasks. Evaluator quality and task-agent quality are distinct claims. Independence is a relationship between a proposal and its evidence, not a claim that one software component must stay unchanged forever.
+
+The user-defined objective and execution permissions remain authoritative. An architectural ability to propose a change is not authorization to bypass settings, delete user files, or expand access. Within those boundaries, no SEA implementation component is categorically excluded from improvement. Progress, including improvements to the learning process itself, remains an empirical claim that may fail.

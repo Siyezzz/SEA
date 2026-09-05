@@ -68,6 +68,8 @@ The skill is provided inside this repository. It has not been installed globally
 
 ## Research direction
 
+**Design principle: every component is a potential subject of evolution.** This includes the task agent, memory kernel, core skill, runner, scheduler, learning procedure, and evaluation methodology. The runner is an initial implementation, not a permanently privileged layer outside the learning loop. Evolvability does not grant permission to change host settings or bypass user constraints. Changes to evaluation must be validated against independent evidence; changing a score definition is not evidence of improved capability. See [recursive evolution](docs/research.md#7-recursive-evolution-without-a-permanently-fixed-runner).
+
 Our proposed combination is to allocate memory by future decision value, promote lessons using counterfactual benefit, and support compression with recoverable evidence. Each component has precedents; SEA does not claim to invent self-evolution, hierarchical memory, or skill archival.
 
 The first milestone is reliable experience accumulation. Claims of improved capability require uncontaminated future-task evaluation. See the evaluation protocol for baselines, ablations, and falsification criteria.
