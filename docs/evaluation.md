@@ -21,6 +21,8 @@ Reject the proposed advantage if gains disappear under equal total budget, fail 
 
 `python -m unittest discover -s tests -v` exercises promotion/regression, duplicate feedback, discovery-task exclusion, scope isolation, archive recovery, byte budgets, invalid rewards and persistence. `demo.py` uses synthetic rewards. Neither tests LLM behavior or establishes learning gains. There are currently no claimed benchmark scores.
 
+Candidate selection tests additionally cover paired-report consistency, changed evaluators, baseline tampering, missing/duplicate task records, insufficient samples, retained-capability gates, Pareto tradeoffs and UCB1 exploration. `evolution_demo.py` is synthetic. See [algorithms](algorithms.md) for the fixed-sample assumptions and multiple-comparison limit. These checks establish implementation behavior, not autonomous learning gains.
+
 ## Trust and engineering limits
 
 The CLI trusts the caller's evidence and task IDs. It cannot attest that feedback is external, correct or independent. An evaluator service with restricted write access is needed before autonomous promotion can be treated as meaningful. The SQLite event table supports inspection, not tamper-proof auditing. Memory files can contain sensitive task data and should stay local unless deliberately reviewed for sharing.

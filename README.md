@@ -12,12 +12,15 @@ We define useful self-evolution operationally: persistent changes derived from e
 
 Read the [research notes](docs/research.md), [evaluation protocol](docs/evaluation.md), and [core skill](skills/experience-core/SKILL.md).
 
+The [related-work comparison](docs/related-work.md) maps nine GitHub systems to concrete adoption decisions. The [algorithm reference](docs/algorithms.md) documents paired utility, uncertainty bounds, Pareto preservation, and UCB1 experiment allocation, including assumptions and limitations.
+
 ## Quick start
 
 Python 3.10 or later. The runtime uses only the standard library and makes no network requests or paid API calls.
 
 ```bash
 python demo.py
+python evolution_demo.py
 python -m unittest discover -s tests -v
 python kernel.py --help
 ```
@@ -57,6 +60,7 @@ flowchart LR
 | Context selection | Lexical relevance, utility ranking, whole-record budget | Semantic retrieval, model tokenizer, task-state compiler |
 | Lifecycle | Project archive and explicit lookup | Automatic distillation, reactivation workflow, skill generation |
 | Exploration | Budgeted experiment guidance in the skill | Scheduler, real environment experiments, isolated execution |
+| Candidate selection | Offline paired comparison, retention bounds, Pareto frontier, UCB1 allocation | Trusted execution reports, persistent program archive, automatic successor handover |
 
 The budget limits **UTF-8 bytes of returned text**, not model tokens or the surrounding prompt. Records that do not fit are skipped intact. Retrieval scans project records and therefore grows in cost with memory size. English word and CJK character matching is a dependency-free baseline, not semantic retrieval.
 
