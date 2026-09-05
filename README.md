@@ -1,0 +1,2 @@
+# SEA
+Self-Evolving Agent
