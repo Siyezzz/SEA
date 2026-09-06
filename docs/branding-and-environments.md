@@ -2,7 +2,7 @@
 
 ## Wave identity
 
-SEA uses an original minimal mint wave on deep ocean blue. `assets/sea-icon.svg` is the scalable source export, `assets/sea-icon.png` is the Codex plugin image, and `assets/sea-social.png` is a repository banner/social-card asset. The mark is embedded in the GitHub README. The social-card file does not itself configure GitHub's repository social-preview setting. `scripts/build_brand.py` regenerates the images using Pillow as a build-only dependency.
+SEA uses an original minimal sea-surface mark: blue and cyan ripples with a small warm-gold reflection on deep ocean blue. `assets/sea-icon.svg` is the scalable source export, `assets/sea-icon.png` is the Codex plugin image, and `assets/sea-social.png` is a repository banner/social-card asset. The mark is embedded in the GitHub README. The social-card file does not itself configure GitHub's repository social-preview setting. `scripts/build_brand.py` regenerates the images using Pillow as a build-only dependency.
 
 The desired instance progression is **drop → lake → sea → wave**. Keep this as a future per-instance profile visualization. Codex's plugin manifest currently supplies static image paths; the integration has no verified mechanism to update its displayed icon per user's learning state. The current plugin and GitHub therefore use the requested wave fallback. No badge claims a level of intelligence.
 

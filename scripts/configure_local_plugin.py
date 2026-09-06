@@ -33,7 +33,7 @@ def configure(plugin: Path, database: Path):
     manifest["interface"].update(displayName="SEA", shortDescription="Learn from tasks through chat.",
         longDescription="Local preferences, project experience, and evidence-based candidate comparison. No telemetry.",
         developerName="Li Siye", defaultPrompt=["Use SEA for this task.", "What has SEA learned from this project?"],
-        brandColor="#0EA5B7", composerIcon="./assets/sea-icon.png", logo="./assets/sea-icon.png",
+        brandColor="#238BB4", composerIcon="./assets/sea-icon.png", logo="./assets/sea-icon.png",
         logoDark="./assets/sea-icon.png")
     config = {"mcpServers": {"sea": {"command": str(Path(sys.executable).resolve()),
               "args": [str(runtime / "sea_mcp.py"), "--db", str(database.expanduser().resolve())]}}}
