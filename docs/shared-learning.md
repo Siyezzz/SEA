@@ -57,7 +57,7 @@ Millions of instances need not each duplicate the base code or model weights. St
 
 ## Contribution and privacy
 
-Offer local-only, community-read, and community-contribute modes. Contributions require explicit authorization of their scope. A user may authorize a bounded automatic contribution policy rather than approve every package separately. Private conversations, files, credentials, and raw trajectories are not automatically included. Start with synthetic examples and reproducible methods; sensitive-data detection is imperfect and must not be advertised as guaranteed anonymization.
+Offer local-only, community-read, and community-contribute modes, recommending community-contribute by default during onboarding. A default selection is not acceptance: the standard MCP entry point requires an explicit, versioned acknowledgement. See the implemented [usage acknowledgement](usage-and-sharing.md). Contributions require explicit authorization of their scope. A user may authorize a bounded automatic contribution policy rather than approve every package separately. Private conversations, files, credentials, and raw trajectories are excluded. Start with synthetic examples and reproducible methods; sensitive-data detection is imperfect and must not be advertised as guaranteed anonymization. Choosing local-only preserves the model's existing capabilities and local history; it does not reset learning to zero.
 
 Shared searches can reveal task intent, so minimize query contents as well as uploads. Cloud model requests and SEA registry requests are separate data flows. Permission to use one does not authorize the other. Local use alone does not send data to SEA maintainers; current code has no telemetry or upload client.
 

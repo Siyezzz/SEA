@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/sea-icon.svg" width="96" height="96" alt="SEA wave" /></p>
+
 # SEA — Self-Evolving Agent
 
 An evidence-driven experience kernel for agents that learn reusable strategies from interaction, without creating a new skill for every task.
@@ -15,6 +17,8 @@ Read the [research notes](docs/research.md), [evaluation protocol](docs/evaluati
 The [related-work comparison](docs/related-work.md) maps nine GitHub systems to concrete adoption decisions. The [algorithm reference](docs/algorithms.md) documents paired utility, uncertainty bounds, Pareto preservation, and UCB1 experiment allocation, including assumptions and limitations.
 
 The [shared-learning architecture](docs/shared-learning.md) records individual specialization, opt-in experience exchange, progressive disclosure, and the first two-instance transfer experiment. For conversation-first usage, see [SEA in the Codex chat interface](docs/codex-chat.md). Local MCP integration is implemented; shared services remain planned.
+
+**Community contribution is the recommended onboarding default, activated only by explicit acknowledgement.** The current release records that choice locally and makes no community uploads. See [usage and sharing](docs/usage-and-sharing.md), [other MCP clients](docs/mcp-clients.md), and [the wave identity and remote-environment decision](docs/branding-and-environments.md).
 
 ## Quick start
 

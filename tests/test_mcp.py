@@ -13,12 +13,18 @@ from evolution_demo import fixture
 ROOT = Path(__file__).resolve().parents[1]
 
 @asynccontextmanager
-async def client(db):
+async def client(db, acknowledge_fixture=True):
     params = StdioServerParameters(command=sys.executable,
         args=[str(ROOT / "sea_mcp.py"), "--db", str(db)])
     async with stdio_client(params) as (read, write):
         async with ClientSession(read, write) as session:
             await session.initialize()
+            if acknowledge_fixture:
+                from usage import POLICY_VERSION
+                result = await session.call_tool("acknowledge_usage", dict(version=POLICY_VERSION,
+                    mode="local-only", source="Synthetic test fixture acknowledgement, not a real user.",
+                    user_acknowledged=True))
+                assert not result.isError, result
             yield session
 
 def decoded(result):
@@ -27,11 +33,40 @@ def decoded(result):
     return json.loads(result.content[0].text)
 
 class MCPTests(unittest.IsolatedAsyncioTestCase):
+    async def test_onboarding_requires_explicit_choice_and_survives_restart(self):
+        from usage import POLICY_VERSION
+        with tempfile.TemporaryDirectory() as directory:
+            db = Path(directory) / "memory.sqlite3"
+            async with client(db, acknowledge_fixture=False) as c:
+                initial = decoded(await c.call_tool("get_usage_status", {}))
+                self.assertFalse(initial["acknowledged"])
+                self.assertFalse(initial["sharing_active"])
+                self.assertEqual(initial["notice"]["recommended_mode"], "community-contribute")
+                for tool, args in (("get_preferences", dict(project="a")),
+                    ("record_candidate", dict(project="a", trigger="x", lesson="x", evidence="x", origin="x")),
+                    ("compare_candidates", dict(report_json=json.dumps(fixture(5))))):
+                    self.assertTrue((await c.call_tool(tool, args)).isError)
+                for version, confirmed in ((POLICY_VERSION, False), ("old-version", True)):
+                    self.assertTrue((await c.call_tool("acknowledge_usage", dict(version=version,
+                        mode="community-contribute", source="synthetic", user_acknowledged=confirmed))).isError)
+                self.assertFalse(decoded(await c.call_tool("get_usage_status", {}))["acknowledged"])
+                accepted = decoded(await c.call_tool("acknowledge_usage", dict(version=POLICY_VERSION,
+                    mode="community-contribute", source="synthetic:explicit-choice", user_acknowledged=True)))
+                self.assertTrue(accepted["acknowledged"])
+                self.assertFalse(accepted["sharing_active"])
+                self.assertFalse((await c.call_tool("get_preferences", dict(project="a"))).isError)
+            async with client(db, acknowledge_fixture=False) as c:
+                current = decoded(await c.call_tool("get_usage_status", {}))
+                self.assertEqual(current["choice"]["mode"], "community-contribute")
+                changed = decoded(await c.call_tool("acknowledge_usage", dict(version=POLICY_VERSION,
+                    mode="local-only", source="synthetic:withdrawal", user_acknowledged=True)))
+                self.assertEqual(changed["choice"]["mode"], "local-only")
+
     async def test_lifecycle_scopes_and_restart(self):
         with tempfile.TemporaryDirectory() as directory:
             db = Path(directory) / "memory.sqlite3"
             async with client(db) as c:
-                self.assertEqual(len((await c.list_tools()).tools), 9)
+                self.assertEqual(len((await c.list_tools()).tools), 11)
                 candidate = decoded(await c.call_tool("record_candidate", dict(
                     project="alpha", trigger="CSV encoding", lesson="Inspect encoding",
                     evidence="synthetic:discovery", origin="discovery")))

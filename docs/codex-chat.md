@@ -8,6 +8,8 @@ After installation, start a new Codex task so it loads the plugin's skills and t
 
 > Use SEA for this task. Retrieve relevant experience, complete the authorized work, and retain lessons supported by actual outcomes. Help me with ...
 
+On first use, the host presents SEA's [usage and sharing notice](usage-and-sharing.md), recommends community contribution, and records your explicit choice. A saved current acknowledgement is reused. The server blocks ordinary memory/comparison calls until acknowledgement; it still makes no community transmissions.
+
 Other requests include "What has SEA learned from this project?", "Remember this preference", and "Archive this project's experience". The host can select the skill implicitly, but installation does not guarantee invocation on every message. If the tools are missing, report the connection problem; do not claim a memory write occurred.
 
 The Codex model does the reasoning. This local SEA server makes no separate model API calls. Retrieved memory is supplied to the host model, so the host's model/data settings still apply. SEA has no telemetry, shared search, or contribution client.
@@ -25,6 +27,7 @@ flowchart TD
 
 | Tool | Behavior |
 |---|---|
+| `get_usage_status` / `acknowledge_usage` | Present the versioned notice and record an explicit user choice; never infer acceptance from installation |
 | `get_preferences` / `record_preference` | Read or update explicitly stated preferences with source attribution; no invented rewards |
 | `recall` | Relevant active lessons, with explicit archived lookup and a UTF-8 byte budget |
 | `record_candidate` | Persist a provisional lesson with discovery source |
@@ -57,8 +60,10 @@ Official host references: [Build skills](https://learn.chatgpt.com/docs/build-sk
 
 ## Verification and remaining work
 
-The suite includes real MCP initialization, tool discovery, schema rejection, candidate promotion and archival, scope checks, paginated inspection, report comparison, and fresh-process preference/lesson recall. Tests use temporary databases and explicitly synthetic evidence. These validate plumbing, not human-like learning or measured transfer.
+The suite includes real MCP initialization, tool discovery, first-use gating, version checks, explicit acknowledgement and mode changes, candidate promotion and archival, scope checks, paginated inspection, report comparison, and fresh-process preference/lesson recall. Tests use temporary databases and explicitly synthetic evidence. These validate plumbing, not human-like learning or measured transfer.
 
 During local installation on 2026-09-06, Codex reported SEA installed and enabled. An SDK client launched the installed configuration, discovered all nine tools, stored two user-stated preferences, and retrieved them through a new server process. New-task desktop invocation remains a separate host pickup step; it was not tested by creating a user task automatically.
+
+The subsequent onboarding revision adds two tools, for eleven total, and a wave icon. Other STDIO-capable hosts can connect using the [MCP client guide](mcp-clients.md); the Codex manifest itself is host-specific.
 
 Future milestones are authenticated shared lookup and opt-in contribution, then actual task/evaluator integration and recoverable successor handover. See [shared learning](shared-learning.md). A skill does not keep a task alive or schedule background experiments. Every SEA implementation component remains revisable within the user's authorization; the integration cannot rewrite the host's proprietary internals or its model weights.
