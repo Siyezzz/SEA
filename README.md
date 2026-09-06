@@ -14,6 +14,8 @@ Read the [research notes](docs/research.md), [evaluation protocol](docs/evaluati
 
 The [related-work comparison](docs/related-work.md) maps nine GitHub systems to concrete adoption decisions. The [algorithm reference](docs/algorithms.md) documents paired utility, uncertainty bounds, Pareto preservation, and UCB1 experiment allocation, including assumptions and limitations.
 
+The [shared-learning architecture](docs/shared-learning.md) records individual specialization, opt-in experience exchange, progressive disclosure, and the first two-instance transfer experiment. For conversation-first usage, see [SEA in the Codex chat interface](docs/codex-chat.md). Shared services and the proposed MCP integration are not implemented yet.
+
 ## Quick start
 
 Python 3.10 or later. The runtime uses only the standard library and makes no network requests or paid API calls.
