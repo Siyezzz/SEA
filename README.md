@@ -2,7 +2,7 @@
 
 An evidence-driven experience kernel for agents that learn reusable strategies from interaction, without creating a new skill for every task.
 
-**Status: research design and runnable memory-lifecycle prototype. No demonstrated autonomous learning gains yet. No LLM adapter, automatic evaluator, or background scheduler is included.**
+**Status: runnable local experience memory, MCP tools, and Codex plugin integration. No demonstrated autonomous learning gains yet. No standalone LLM adapter, automatic evaluator, shared service, or background scheduler is included.**
 
 ## Why SEA?
 
@@ -14,11 +14,13 @@ Read the [research notes](docs/research.md), [evaluation protocol](docs/evaluati
 
 The [related-work comparison](docs/related-work.md) maps nine GitHub systems to concrete adoption decisions. The [algorithm reference](docs/algorithms.md) documents paired utility, uncertainty bounds, Pareto preservation, and UCB1 experiment allocation, including assumptions and limitations.
 
-The [shared-learning architecture](docs/shared-learning.md) records individual specialization, opt-in experience exchange, progressive disclosure, and the first two-instance transfer experiment. For conversation-first usage, see [SEA in the Codex chat interface](docs/codex-chat.md). Shared services and the proposed MCP integration are not implemented yet.
+The [shared-learning architecture](docs/shared-learning.md) records individual specialization, opt-in experience exchange, progressive disclosure, and the first two-instance transfer experiment. For conversation-first usage, see [SEA in the Codex chat interface](docs/codex-chat.md). Local MCP integration is implemented; shared services remain planned.
 
 ## Quick start
 
-Python 3.10 or later. The runtime uses only the standard library and makes no network requests or paid API calls.
+For chat usage, ask Codex to install the local SEA plugin following [the integration guide](docs/codex-chat.md), then say **"Use SEA for this task."** No daily terminal interaction is required.
+
+For development: Python 3.10 or later. The memory and comparison runtimes use only the standard library. MCP integration and its tests require `pip install -r requirements-mcp.txt`. SEA makes no network requests or paid API calls during memory operations.
 
 ```bash
 python demo.py
@@ -56,8 +58,8 @@ flowchart LR
 
 | Component | Implemented | Future work |
 |---|---|---|
-| Core skill | Experience-management protocol | Automatic host integration |
-| Persistent memory | SQLite, provenance, project scope, events | Contradiction links, temporal validity, original evidence storage |
+| Core skill | Tool-first protocol and local Codex plugin packaging | Portable distribution and lifecycle integration |
+| Persistent memory | SQLite, explicit preferences, provenance, project scope, events | Contradiction links, temporal validity, original evidence storage |
 | Validation gate | Task ID deduplication, discovery-task exclusion, demotion | Trusted evaluators, statistical tests, causal attribution |
 | Context selection | Lexical relevance, utility ranking, whole-record budget | Semantic retrieval, model tokenizer, task-state compiler |
 | Lifecycle | Project archive and explicit lookup | Automatic distillation, reactivation workflow, skill generation |
@@ -70,7 +72,7 @@ The budget limits **UTF-8 bytes of returned text**, not model tokens or the surr
 
 The host calls `recall` before a task, checks applicability and evidence, records candidates after meaningful outcomes, and submits `feedback` from external tests. Loading the skill alone does not schedule these actions. Candidates are excluded from normal retrieval; an experiment controller can inspect them through `Kernel.get(id)`.
 
-The skill is provided inside this repository. It has not been installed globally or used to change existing agent settings. The kernel does not execute stored code or enforce system permissions; the host remains responsible for file, network, and tool boundaries.
+The repository supplies a local MCP server and a configuration script for Codex plugin scaffolds. Installation is explicit and machine-local; cloning alone does not connect a host. The kernel does not execute stored code or enforce system permissions; the host remains responsible for file, network, and tool boundaries. User preferences are stored separately from empirical lessons and never require fabricated validation rewards.
 
 ## Research direction
 

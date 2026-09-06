@@ -1,54 +1,64 @@
 # Using SEA through the Codex chat interface
 
-Recorded: 2026-09-06. Preferred user experience: ordinary conversation in the desktop chat box. Terminal commands are implementation details for the host, not the required daily interaction model.
+Updated: 2026-09-06. SEA now provides a local MCP STDIO server and a Codex plugin configuration script. Daily interaction stays in the chat box; the host handles Python and tool calls.
 
-## What can work today
+## Use it in chat
 
-The current repository can be used by a Codex task that has access to its files and a Python runtime. Ask Codex to read `skills/experience-core/SKILL.md`, use a project-scoped local database, retrieve relevant experience, and record externally supported lessons while completing your task. Codex can invoke the existing Python tools on your behalf; you need not type those commands yourself.
+After installation, start a new Codex task so it loads the plugin's skills and tools. Say:
 
-Example request when working in the SEA repository:
+> Use SEA for this task. Retrieve relevant experience, complete the authorized work, and retain lessons supported by actual outcomes. Help me with ...
 
-> Use the experience-core protocol in this repository for this task. Keep memory local, retrieve only relevant lessons, and record candidates from actual outcomes. Help me solve the following problem: ...
+Other requests include "What has SEA learned from this project?", "Remember this preference", and "Archive this project's experience". The host can select the skill implicitly, but installation does not guarantee invocation on every message. If the tools are missing, report the connection problem; do not claim a memory write occurred.
 
-This is host-assisted use of the current prototype. It is not an installed plugin, guaranteed automatic invocation, a shared service, or an always-running autonomous learner. The repository's `skills/` directory alone should not be assumed to install a skill into every Codex task. An explicit file reference is sufficient for a task that can read that file; normal discovery needs an appropriate supported installation or packaging step.
-
-Candidate lessons require validation; ordinary task success does not automatically prove transfer. Fresh sessions can read the same persisted database when explicitly connected to the same instance and project scope. A skill does not by itself guarantee lifecycle hooks on every message or complete access to all past conversations.
-
-## Recommended integration: skill plus local MCP tools
-
-Keep the Codex conversation and its selected model as the interaction and reasoning layer. Package SEA's workflow guidance as a skill, and expose memory operations through a local MCP server. The host invokes tools while presenting normal conversational results. A local memory-only MCP server need not make a separate model API request; additional model-based evaluators or autonomous workers would be separate integrations with their own usage and authorization.
+The Codex model does the reasoning. This local SEA server makes no separate model API calls. Retrieved memory is supplied to the host model, so the host's model/data settings still apply. SEA has no telemetry, shared search, or contribution client.
 
 ```mermaid
 flowchart TD
     U[User in the Codex chat box] --> C[Codex and its selected model]
-    C --> S[SEA workflow skill]
+    C --> S[SEA experience-core skill]
     C --> M[Local SEA MCP tools]
-    M --> D[Private instance memory and evaluation records]
-    M -. Future authorized lookup .-> R[Shared experience service]
+    M --> D[Private local SQLite memory]
+    M -. Future opt-in lookup .-> R[Shared experience service]
 ```
 
-Proposed tool surface: `recall`, `record_candidate`, `record_feedback`, `compare_candidates`, `archive_project`, and `inspect_learning`. Later add separately authorized shared search, package inspection, publication, and outcome contribution. These are proposed wrappers; there is currently no SEA MCP server in this repository. Administrative sharing operations should remain distinct from local memory operations.
+## Implemented tools
 
-Codex skill guidance supports explicit or implicit selection and progressive loading of skill content. MCP supports connections to external tools; official documentation describes desktop settings for adding servers and local STDIO or HTTP transports. Exact labels can vary with client version. Sources: [Build skills](https://learn.chatgpt.com/docs/build-skills) and [Model Context Protocol](https://learn.chatgpt.com/docs/extend/mcp?surface=cli).
+| Tool | Behavior |
+|---|---|
+| `get_preferences` / `record_preference` | Read or update explicitly stated preferences with source attribution; no invented rewards |
+| `recall` | Relevant active lessons, with explicit archived lookup and a UTF-8 byte budget |
+| `record_candidate` | Persist a provisional lesson with discovery source |
+| `record_feedback` | Apply observed independent results through the existing heuristic promotion/demotion gate |
+| `inspect_learning` / `get_memory` | Page through short metadata, then inspect one full record on demand |
+| `archive_project` | Archive named-project lessons; preferences remain separate |
+| `compare_candidates` | Evaluate an external paired report; does not execute or install a successor |
 
-## Conversation-first behavior
+The database path defaults to `~/.sea/memory.sqlite3`, independent of the task's working directory. The plugin config pins an absolute database path. Use a stable project identifier, such as its canonical repository URL. Project scope is an organizational filter, not a multi-user authentication boundary: a connected host can select any project in its instance. Use separate databases/processes for separate owners.
 
-After integration, requests should sound like:
+Preference records are user statements, not measured capability gains. Current instructions override memory; project preferences override global defaults. Updating the same project/key replaces the current value and appends an audit event. There is no preference erasure API yet. Normal lesson recall excludes candidates. Evidence authenticity and task independence remain caller responsibilities.
 
-- "Help me fix this problem and retain any validated reusable lesson."
-- "What has my SEA learned from this project?"
-- "Find relevant community experience, but keep my project data private."
-- "Show the evidence before adopting this proposed improvement."
-- "Archive this project's experience."
+Recall and preference budgets cover exact returned UTF-8 text, not MCP envelopes or model tokens. Whole records that do not fit are skipped. Metadata inspection is paginated. Retrieval is lexical and still scans scoped records; this prototype has not demonstrated million-instance scale.
 
-Report what changed, why, and the evidence. Distinguish candidates from validated experience. Do not make the user manually invoke database operations, interpret raw JSON, or manage a terminal to complete routine tasks. Built-in tool activity and permission prompts remain under the host's control; SEA cannot promise to hide or bypass them.
+## Local installation for a Codex host
 
-## Phased implementation
+The user can ask Codex to perform these steps; no terminal interaction is required from them. Python 3.10+ is required; the MCP dependency is pinned in `requirements-mcp.txt`. The memory and comparison CLIs remain standard-library-only.
 
-1. Host-assisted local use: the existing skill and scripts operate within an explicitly scoped Codex task.
-2. Local MCP integration: implement typed tools, persistent instance identity and stable memory paths, then test tool calls and fresh-session recall through the chat interface.
-3. Distribution: package the skill and tested server into an installable extension/plugin using supported mechanisms. Installation and connection are separate from merely cloning the repository.
-4. Shared learning: introduce authenticated progressive lookup and opt-in experience contribution using the [shared-learning design](shared-learning.md).
-5. Real growth loop: connect actual tasks and independent evaluators, version candidate core/runner changes, and test successor handover. Background learning requires an explicitly configured runner or supported scheduling mechanism; a skill file does not keep a task alive.
+1. Create a dedicated Python environment and install `requirements-mcp.txt`.
+2. Using Codex's `plugin-creator` skill, scaffold `sea` with skills, MCP, and the personal marketplace. Its default source is `~/plugins/sea`; do not overwrite an unrelated existing plugin.
+3. Run `scripts/configure_local_plugin.py` with that MCP-enabled Python interpreter. It populates the scaffold with a runtime snapshot and the self-contained skill. Optional `--plugin` and `--db` arguments select explicit local paths. This script does not edit marketplace or host settings.
+4. Validate the plugin and skill using the Codex skill validators, then install `sea@personal` with the Codex plugin CLI. Confirm it is installed and enabled.
+5. Start a new task for plugin discovery. Verify tool discovery and a local preference write/read before relying on memory.
 
-An independent SEA chat application is a later option if model-provider flexibility outside Codex or a dedicated interface is needed. It is unnecessary for the first usable version. SEA can revise its own implementation within permissions; it cannot rewrite the proprietary host, replace the host's model weights, or change approval settings merely by installing a skill.
+The generated `.mcp.json` contains absolute machine-local interpreter, runtime, and database paths. Keep that development installation on its machine; other users must regenerate it. The repository contains no personal database or generated machine configuration. The configured Python environment and plugin source directory must remain available. This is a reproducible local integration, not a portable one-click marketplace release.
+
+For updates, validate the marketplace identity, rerun the configuration script, use the plugin-creator cachebuster helper, and reinstall using the supported update workflow. Start a new task afterward. The runtime is a snapshot; editing the repository alone does not update an installed plugin.
+
+Official host references: [Build skills](https://learn.chatgpt.com/docs/build-skills), [MCP configuration](https://learn.chatgpt.com/docs/extend/mcp?surface=cli), and the installed Codex `plugin-creator` skill. Server implementation uses the [official MCP Python SDK v1](https://github.com/modelcontextprotocol/python-sdk/tree/v1.x).
+
+## Verification and remaining work
+
+The suite includes real MCP initialization, tool discovery, schema rejection, candidate promotion and archival, scope checks, paginated inspection, report comparison, and fresh-process preference/lesson recall. Tests use temporary databases and explicitly synthetic evidence. These validate plumbing, not human-like learning or measured transfer.
+
+During local installation on 2026-09-06, Codex reported SEA installed and enabled. An SDK client launched the installed configuration, discovered all nine tools, stored two user-stated preferences, and retrieved them through a new server process. New-task desktop invocation remains a separate host pickup step; it was not tested by creating a user task automatically.
+
+Future milestones are authenticated shared lookup and opt-in contribution, then actual task/evaluator integration and recoverable successor handover. See [shared learning](shared-learning.md). A skill does not keep a task alive or schedule background experiments. Every SEA implementation component remains revisable within the user's authorization; the integration cannot rewrite the host's proprietary internals or its model weights.

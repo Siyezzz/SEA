@@ -25,6 +25,9 @@ class Kernel:
           PRIMARY KEY(memory, task));
         CREATE TABLE IF NOT EXISTS events (
           sequence INTEGER PRIMARY KEY, time TEXT, kind TEXT, payload TEXT);
+        CREATE TABLE IF NOT EXISTS preferences (
+          project TEXT, key TEXT, value TEXT, source TEXT,
+          PRIMARY KEY(project, key));
         """)
 
     def event(self, kind, payload):
@@ -99,6 +102,32 @@ class Kernel:
 
     def close(self):
         self.db.close()
+
+    def set_preference(self, project, key, value, source):
+        if not all(isinstance(x, str) and x.strip() for x in (project, key, value, source)):
+            raise ValueError("Preference fields require nonempty text")
+        item = dict(project=project, key=key, value=value, source=source,
+                    kind="user_stated_preference")
+        with self.db:
+            self.db.execute("INSERT INTO preferences VALUES(?,?,?,?) "
+                            "ON CONFLICT(project,key) DO UPDATE SET value=excluded.value,source=excluded.source",
+                            (project, key, value, source))
+            self.event("preference", item)
+        return item
+
+    def preferences(self, project, budget=2048):
+        """Explicit preferences, kept separate from evidence-gated strategies."""
+        if budget < 0:
+            raise ValueError("Budget must be nonnegative")
+        selected = []
+        for row in self.db.execute("SELECT * FROM preferences WHERE project IN (?, 'global') "
+                                   "ORDER BY CASE WHEN project=? THEN 0 ELSE 1 END,key", (project, project)):
+            item = dict(row, kind="user_stated_preference")
+            line = json.dumps(item, ensure_ascii=False)
+            candidate = "\n".join(selected + [line])
+            if len(candidate.encode("utf-8")) <= budget:
+                selected.append(line)
+        return "\n".join(selected)
 
 
 def main():
