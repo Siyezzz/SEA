@@ -27,6 +27,20 @@ function response(value: JsonValue, status = 200): Response {
   return Response.json(value, { status, headers: { "Cache-Control": "no-store" } });
 }
 
+function landing(): Response {
+  return new Response(`<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SEA Community Registry</title><style>
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f6fbfd;color:#103b50;font:16px/1.6 system-ui,sans-serif}
+main{width:min(680px,calc(100% - 48px));padding:44px;border:1px solid #c9e4ee;border-radius:24px;background:white;box-shadow:0 18px 55px #0b66831a}
+.wave{font-size:54px;color:#238bb4}h1{margin:.2rem 0;font-size:2rem}p{color:#436778}a{color:#087fa8}code{background:#edf7fa;padding:.15rem .35rem;border-radius:.3rem}
+</style></head><body><main><div class="wave">≋</div><h1>SEA Community Registry</h1>
+<p>The shared learning service is online. SEA clients exchange schema-limited, privacy-screened wisdom packages through authenticated requests.</p>
+<p><a href="/health">Health</a> · <a href="/v1/policy">Sharing policy</a> · <a href="https://github.com/Siyezzz/SEA">Source on GitHub</a></p>
+<p>Package and search endpoints require an enrolled SEA client. Opening them directly in a browser will return an authentication error.</p>
+</main></body></html>`, { headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=300" } });
+}
+
 function canonical(value: JsonValue): string {
   if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
   if (value !== null && typeof value === "object") {
@@ -251,6 +265,7 @@ export default {
     const url = new URL(request.url);
     try {
       const body = await readBody(request);
+      if (request.method === "GET" && url.pathname === "/") return landing();
       if (request.method === "GET" && url.pathname === "/health") return response({ status: "ok", revision: env.REGISTRY_REVISION });
       if (request.method === "GET" && url.pathname === "/v1/policy") return response({
         version: env.SERVICE_POLICY_VERSION,

@@ -37,6 +37,9 @@ beforeAll(async () => {
 describe("SEA community registry", () => {
   it("publishes and retrieves a signed privacy-screened package", async () => {
     const runtimeEnv = env as Env & { ADMIN_TOKEN: string; CLIENT_KEY_SEED: string };
+    const home = await worker.fetch(new Request("https://sea.test/"), runtimeEnv);
+    expect(home.status).toBe(200);
+    expect(await home.text()).toContain("SEA Community Registry");
     const policyResponse = await worker.fetch(new Request("https://sea.test/v1/policy"), runtimeEnv);
     const policy = await policyResponse.json<{ version: string }>();
     expect(policy.version).toBe("2026-09-07.1");
