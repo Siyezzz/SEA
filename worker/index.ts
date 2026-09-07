@@ -32,12 +32,15 @@ function landing(): Response {
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SEA Community Registry</title><style>
 body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f6fbfd;color:#103b50;font:16px/1.6 system-ui,sans-serif}
-main{width:min(680px,calc(100% - 48px));padding:44px;border:1px solid #c9e4ee;border-radius:24px;background:white;box-shadow:0 18px 55px #0b66831a}
-.wave{font-size:54px;color:#238bb4}h1{margin:.2rem 0;font-size:2rem}p{color:#436778}a{color:#087fa8}code{background:#edf7fa;padding:.15rem .35rem;border-radius:.3rem}
-</style></head><body><main><div class="wave">≋</div><h1>SEA Community Registry</h1>
+main{width:min(720px,calc(100% - 48px));margin:32px 0;padding:44px;border:1px solid #c9e4ee;border-radius:24px;background:white;box-shadow:0 18px 55px #0b66831a}
+.logo{width:76px;height:76px}h1{margin:.4rem 0;font-size:2rem}p{color:#436778}nav{display:flex;gap:18px;flex-wrap:wrap;margin:22px 0}a{color:#087fa8;font-weight:650}section{margin-top:18px;padding:18px 20px;border-radius:14px;background:#edf7fa}h2{margin:0 0 6px;font-size:1.05rem}code{background:#dceff5;padding:.15rem .35rem;border-radius:.3rem}
+</style></head><body><main><div class="logo"><svg viewBox="0 0 256 256" role="img" aria-label="SEA heart wave"><defs><linearGradient id="ocean" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#238BB4"/><stop offset="1" stop-color="#72C3CA"/></linearGradient></defs><rect width="256" height="256" rx="56" fill="#083B61"/><path d="M128 201 C112 174 99 154 78 141 C54 126 42 104 48 80 C54 54 78 39 102 47 C115 51 124 60 128 70 C132 60 141 51 154 47 C178 39 202 54 208 80 C214 104 202 126 178 141 C157 154 144 174 128 201 Z" fill="url(#ocean)"/><path d="M45 132 C72 105 98 108 124 139 C149 169 176 144 211 124" fill="none" stroke="#083B61" stroke-width="19" stroke-linecap="round"/><path d="M45 132 C72 105 98 108 124 139 C149 169 176 144 211 124" fill="none" stroke="#F2CB99" stroke-width="5" stroke-linecap="round"/></svg></div><h1>SEA Community Registry</h1>
 <p>The shared learning service is online. SEA clients exchange schema-limited, privacy-screened wisdom packages through authenticated requests.</p>
-<p><a href="/health">Health</a> · <a href="/v1/policy">Sharing policy</a> · <a href="https://github.com/Siyezzz/SEA">Source on GitHub</a></p>
-<p>Package and search endpoints require an enrolled SEA client. Opening them directly in a browser will return an authentication error.</p>
+<nav><a href="#status">Status</a><a href="#policy">Sharing policy</a><a href="#source">Source</a></nav>
+<section id="status"><h2>Status</h2><p>Online · registry revision <code>cloudflare-registry/1.0</code>. Machine-readable health: <code>/health</code>.</p></section>
+<section id="policy"><h2>Sharing policy</h2><p>SEA stores reviewed wisdom packages, aggregate outcome feedback, client identifiers, and replay-prevention nonces. It excludes raw conversations, private files, source code, credentials, personal identifiers, and raw execution traces. Machine-readable policy: <code>/v1/policy</code>.</p></section>
+<section id="source"><h2>Open source</h2><p>Read the implementation, protocol, tests, and deployment guide on <a href="https://github.com/Siyezzz/SEA" target="_blank" rel="noreferrer">GitHub</a>.</p></section>
+<p>Package and search API endpoints require an enrolled SEA client.</p>
 </main></body></html>`, { headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "public, max-age=300" } });
 }
 
