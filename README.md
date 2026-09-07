@@ -20,6 +20,8 @@ The [shared-learning architecture](docs/shared-learning.md) records individual s
 
 **Community contribution is the recommended onboarding choice, activated only by explicit acknowledgement and authenticated registry configuration.** SEA sends only a reviewed, schema-limited wisdom package after `prepare_contribution` and `sync_contributions`; ordinary memory operations do not transmit data. See [usage and sharing](docs/usage-and-sharing.md), [other MCP clients](docs/mcp-clients.md), and [the wave identity and remote-environment decision](docs/branding-and-environments.md).
 
+The owner-operated reference registry is live at `https://sea-community-registry.li-siye-0123.workers.dev`. Its public `/v1/policy` endpoint reports the current service policy before a client is enrolled. Other deployments can use the same protocol and choose a different registry.
+
 ## Quick start
 
 For chat usage, ask Codex to install the local SEA plugin following [the integration guide](docs/codex-chat.md), then say **"Use SEA for this task."** No daily terminal interaction is required.

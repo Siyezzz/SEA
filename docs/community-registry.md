@@ -32,6 +32,8 @@ New packages start as candidates. The initial registry rule activates a package 
 
 The production reference uses a Cloudflare Worker and D1. Runtime types are generated from `wrangler.jsonc`; secrets are created with Wrangler and never committed.
 
+The repository owner's reference deployment is `https://sea-community-registry.li-siye-0123.workers.dev`. The public `/health` and `/v1/policy` endpoints expose runtime status and the exact current sharing contract. All package, search, feedback, lineage, and component operations require an enrolled signed client.
+
 ```bash
 npm ci
 npm run cf:types
