@@ -1,6 +1,6 @@
 # Using SEA through the Codex chat interface
 
-Updated: 2026-09-06. SEA now provides a local MCP STDIO server and a Codex plugin configuration script. Daily interaction stays in the chat box; the host handles Python and tool calls.
+Updated: 2026-09-07. SEA provides a local MCP STDIO server, a Codex plugin configuration script, and optional authenticated community exchange. Daily interaction stays in the chat box; the host handles Python and tool calls.
 
 ## Use it in chat
 
@@ -8,11 +8,11 @@ After installation, start a new Codex task so it loads the plugin's skills and t
 
 > Use SEA for this task. Retrieve relevant experience, complete the authorized work, and retain lessons supported by actual outcomes. Help me with ...
 
-On first use, the host presents SEA's [usage and sharing notice](usage-and-sharing.md), recommends community contribution, and records your explicit choice. A saved current acknowledgement is reused. The server blocks ordinary memory/comparison calls until acknowledgement; it still makes no community transmissions.
+On first use, the host presents SEA's [usage and sharing notice](usage-and-sharing.md), including the configured recipient, and records your explicit choice. A saved current acknowledgement is reused. Community contribution still requires creating a reviewed package and invoking a bounded sync.
 
 Other requests include "What has SEA learned from this project?", "Remember this preference", and "Archive this project's experience". The host can select the skill implicitly, but installation does not guarantee invocation on every message. If the tools are missing, report the connection problem; do not claim a memory write occurred.
 
-The Codex model does the reasoning. This local SEA server makes no separate model API calls. Retrieved memory is supplied to the host model, so the host's model/data settings still apply. SEA has no telemetry, shared search, or contribution client.
+The Codex model does the reasoning. This local SEA server makes no separate model API calls. Retrieved memory is supplied to the host model, so the host's model/data settings still apply. SEA has no ambient telemetry. When configured, its community tools make signed requests to the selected SEA registry.
 
 ```mermaid
 flowchart TD
@@ -20,7 +20,7 @@ flowchart TD
     C --> S[SEA experience-core skill]
     C --> M[Local SEA MCP tools]
     M --> D[Private local SQLite memory]
-    M -. Future opt-in lookup .-> R[Shared experience service]
+    M -. Authorized selective exchange .-> R[SEA Community Registry]
 ```
 
 ## Implemented tools
@@ -35,6 +35,10 @@ flowchart TD
 | `inspect_learning` / `get_memory` | Page through short metadata, then inspect one full record on demand |
 | `archive_project` | Archive named-project lessons; preferences remain separate |
 | `compare_candidates` | Evaluate an external paired report; does not execute or install a successor |
+| `prepare_contribution` / `inspect_sync` / `sync_contributions` | Privacy-screen one active lesson, queue it locally, inspect state, and send a bounded batch |
+| `search_community` / `get_community_package` | Retrieve small metadata results first, then one selected full package |
+| `record_community_feedback` | Return an opaque task ID, reward, and evidence digest after an observed local trial |
+| `activate_sync_policy` | Activate bounded batch/retry configuration only after an eligible paired comparison |
 
 The database path defaults to `~/.sea/memory.sqlite3`, independent of the task's working directory. The plugin config pins an absolute database path. Use a stable project identifier, such as its canonical repository URL. Project scope is an organizational filter, not a multi-user authentication boundary: a connected host can select any project in its instance. Use separate databases/processes for separate owners.
 
@@ -48,7 +52,7 @@ The user can ask Codex to perform these steps; no terminal interaction is requir
 
 1. Create a dedicated Python environment and install `requirements-mcp.txt`.
 2. Using Codex's `plugin-creator` skill, scaffold `sea` with skills, MCP, and the personal marketplace. Its default source is `~/plugins/sea`; do not overwrite an unrelated existing plugin.
-3. Run `scripts/configure_local_plugin.py` with that MCP-enabled Python interpreter. It populates the scaffold with a runtime snapshot and the self-contained skill. Optional `--plugin` and `--db` arguments select explicit local paths. This script does not edit marketplace or host settings.
+3. Run `scripts/configure_local_plugin.py` with that MCP-enabled Python interpreter. It populates the scaffold with a runtime snapshot and the self-contained skill. Optional registry arguments add the URL, client ID, and client-secret environment variable name. The secret value is never written to plugin files.
 4. Validate the plugin and skill using the Codex skill validators, then install `sea@personal` with the Codex plugin CLI. Confirm it is installed and enabled.
 5. Start a new task for plugin discovery. Verify tool discovery and a local preference write/read before relying on memory.
 
@@ -62,8 +66,8 @@ Official host references: [Build skills](https://learn.chatgpt.com/docs/build-sk
 
 The suite includes real MCP initialization, tool discovery, first-use gating, version checks, explicit acknowledgement and mode changes, candidate promotion and archival, scope checks, paginated inspection, report comparison, and fresh-process preference/lesson recall. Tests use temporary databases and explicitly synthetic evidence. These validate plumbing, not human-like learning or measured transfer.
 
-During local installation on 2026-09-06, Codex reported SEA installed and enabled. An SDK client launched the installed configuration, discovered all nine tools, stored two user-stated preferences, and retrieved them through a new server process. New-task desktop invocation remains a separate host pickup step; it was not tested by creating a user task automatically.
+During local installation on 2026-09-06, Codex reported SEA installed and enabled. An SDK client launched the installed configuration, stored two user-stated preferences, and retrieved them through a new server process. The 2026-09-07 suite discovers all eighteen tools and tests the community protocol through real MCP, ASGI, and Workers-runtime boundaries.
 
-The subsequent onboarding revision adds two tools, for eleven total, and a wave icon. Other STDIO-capable hosts can connect using the [MCP client guide](mcp-clients.md); the Codex manifest itself is host-specific.
+The community revision exposes eighteen tools and retains the wave icon. Other STDIO-capable hosts can connect using the [MCP client guide](mcp-clients.md); the Codex manifest itself is host-specific.
 
-Future milestones are authenticated shared lookup and opt-in contribution, then actual task/evaluator integration and recoverable successor handover. See [shared learning](shared-learning.md). A skill does not keep a task alive or schedule background experiments. Every SEA implementation component remains revisable within the user's authorization; the integration cannot rewrite the host's proprietary internals or its model weights.
+Future milestones are measured cross-instance transfer, automatic evaluator integration, abuse controls, withdrawal, semantic retrieval, and recoverable successor handover. See [shared learning](shared-learning.md). A skill does not keep a task alive or schedule background experiments. Every SEA implementation component remains revisable within the user's authorization; the integration cannot rewrite the host's proprietary internals or its model weights.

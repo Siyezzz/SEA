@@ -41,6 +41,7 @@ class MCPTests(unittest.IsolatedAsyncioTestCase):
                 initial = decoded(await c.call_tool("get_usage_status", {}))
                 self.assertFalse(initial["acknowledged"])
                 self.assertFalse(initial["sharing_active"])
+                self.assertEqual(initial["registry"], {"configured": False, "url": None})
                 self.assertEqual(initial["notice"]["recommended_mode"], "community-contribute")
                 for tool, args in (("get_preferences", dict(project="a")),
                     ("record_candidate", dict(project="a", trigger="x", lesson="x", evidence="x", origin="x")),
@@ -66,7 +67,7 @@ class MCPTests(unittest.IsolatedAsyncioTestCase):
         with tempfile.TemporaryDirectory() as directory:
             db = Path(directory) / "memory.sqlite3"
             async with client(db) as c:
-                self.assertEqual(len((await c.list_tools()).tools), 11)
+                self.assertEqual(len((await c.list_tools()).tools), 18)
                 candidate = decoded(await c.call_tool("record_candidate", dict(
                     project="alpha", trigger="CSV encoding", lesson="Inspect encoding",
                     evidence="synthetic:discovery", origin="discovery")))
@@ -92,6 +93,7 @@ class MCPTests(unittest.IsolatedAsyncioTestCase):
                 r = await c.call_tool("recall", dict(query="CSV", project="alpha", include_archived=True))
                 self.assertIn(mid, r.content[0].text)
                 self.assertTrue((await c.call_tool("archive_project", dict(project="global"))).isError)
+                self.assertTrue((await c.call_tool("search_community", dict(query="CSV"))).isError)
 
     async def test_preferences_validation_budget_and_pagination(self):
         with tempfile.TemporaryDirectory() as directory:

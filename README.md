@@ -4,7 +4,7 @@
 
 An evidence-driven experience kernel for agents that learn reusable strategies from interaction, without creating a new skill for every task.
 
-**Status: runnable local experience memory, MCP tools, and Codex plugin integration. No demonstrated autonomous learning gains yet. No standalone LLM adapter, automatic evaluator, shared service, or background scheduler is included.**
+**Status: runnable local experience memory, MCP tools, Codex plugin integration, and a deployable authenticated community registry. No demonstrated autonomous learning gains yet. No standalone LLM adapter, automatic evaluator, or background scheduler is included.**
 
 ## Why SEA?
 
@@ -16,15 +16,15 @@ Read the [research notes](docs/research.md), [evaluation protocol](docs/evaluati
 
 The [related-work comparison](docs/related-work.md) maps nine GitHub systems to concrete adoption decisions. The [algorithm reference](docs/algorithms.md) documents paired utility, uncertainty bounds, Pareto preservation, and UCB1 experiment allocation, including assumptions and limitations.
 
-The [shared-learning architecture](docs/shared-learning.md) records individual specialization, opt-in experience exchange, progressive disclosure, and the first two-instance transfer experiment. For conversation-first usage, see [SEA in the Codex chat interface](docs/codex-chat.md). Local MCP integration is implemented; shared services remain planned.
+The [shared-learning architecture](docs/shared-learning.md) records individual specialization, controlled experience exchange, progressive disclosure, and the first two-instance transfer experiment. For conversation-first usage, see [SEA in the Codex chat interface](docs/codex-chat.md). The local MCP client and reference Cloudflare registry are implemented; see [community registry operations](docs/community-registry.md).
 
-**Community contribution is the recommended onboarding default, activated only by explicit acknowledgement.** The current release records that choice locally and makes no community uploads. See [usage and sharing](docs/usage-and-sharing.md), [other MCP clients](docs/mcp-clients.md), and [the wave identity and remote-environment decision](docs/branding-and-environments.md).
+**Community contribution is the recommended onboarding choice, activated only by explicit acknowledgement and authenticated registry configuration.** SEA sends only a reviewed, schema-limited wisdom package after `prepare_contribution` and `sync_contributions`; ordinary memory operations do not transmit data. See [usage and sharing](docs/usage-and-sharing.md), [other MCP clients](docs/mcp-clients.md), and [the wave identity and remote-environment decision](docs/branding-and-environments.md).
 
 ## Quick start
 
 For chat usage, ask Codex to install the local SEA plugin following [the integration guide](docs/codex-chat.md), then say **"Use SEA for this task."** No daily terminal interaction is required.
 
-For development: Python 3.10 or later. The memory and comparison runtimes use only the standard library. MCP integration and its tests require `pip install -r requirements-mcp.txt`. SEA makes no network requests or paid API calls during memory operations.
+For development: Python 3.10 or later. The memory and comparison runtimes use only the standard library. MCP integration and its tests require `pip install -r requirements-mcp.txt`. Local memory operations make no network requests. Community tools contact only the configured registry.
 
 ```bash
 python demo.py
@@ -69,6 +69,7 @@ flowchart LR
 | Lifecycle | Project archive and explicit lookup | Automatic distillation, reactivation workflow, skill generation |
 | Exploration | Budgeted experiment guidance in the skill | Scheduler, real environment experiments, isolated execution |
 | Candidate selection | Offline paired comparison, retention bounds, Pareto frontier, UCB1 allocation | Trusted execution reports, persistent program archive, automatic successor handover |
+| Community exchange | Privacy-screened packages, local outbox, HMAC authentication, replay protection, progressive fetch, aggregate feedback, lineage | Withdrawal, abuse controls, semantic retrieval, federated operation |
 
 The budget limits **UTF-8 bytes of returned text**, not model tokens or the surrounding prompt. Records that do not fit are skipped intact. Retrieval scans project records and therefore grows in cost with memory size. English word and CJK character matching is a dependency-free baseline, not semantic retrieval.
 

@@ -1,0 +1,20 @@
+{
+  "name": "sea-community-registry",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "cf:types": "wrangler types worker/worker-configuration.d.ts",
+    "cf:check": "wrangler types worker/worker-configuration.d.ts && wrangler deploy --dry-run && tsc --noEmit",
+    "cf:test": "vitest run",
+    "cf:dev": "wrangler dev --local"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-plugin": "1.1.4",
+    "@cloudflare/workers-types": "5.20260907.1",
+    "@types/node": "24.3.1",
+    "typescript": "7.0.2",
+    "vitest": "4.1.0",
+    "wrangler": "4.129.0"
+  }
+}

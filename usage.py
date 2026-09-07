@@ -1,21 +1,23 @@
 """Versioned, local acknowledgement for the standard MCP entry point."""
 from datetime import datetime, timezone
 
-POLICY_VERSION = "2026-09-06.1"
+POLICY_VERSION = "2026-09-07.1"
 MODES = ("community-contribute", "community-read", "local-only")
 NOTICE = {
     "version": POLICY_VERSION,
     "recommended_mode": "community-contribute",
     "acknowledgement_required": True,
-    "summary": "Learn locally and, when a community service is available and authorized, give back reusable non-private experience.",
+    "summary": "Learn locally and optionally exchange reusable non-private experience with the configured SEA Community Registry.",
     "eligible_data": ["Reviewed general methods", "Synthetic examples", "Non-private evaluation summaries and counterexamples"],
     "excluded_data": ["Raw conversations", "Private files or source code", "Credentials", "Personal identifiers",
                       "Local preferences", "Private paths, project names, and raw execution traces"],
     "controls": "The user may choose or change mode. A default selection is not acknowledgement. Downloads are not consent.",
     "local_only": "Keeps model capabilities and local experience. No community exchange; learning does not start from zero.",
     "host_data": "Memory returned to the host is handled under that host/model provider's data settings.",
-    "service_status": "Not connected: this release has no community upload, search, or telemetry client.",
-    "future_activation": "Disclose the actual recipient, data fields, retention, and reuse terms and obtain acknowledgement before enabling a future service.",
+    "recipient": "The SEA Community Registry URL shown by the host when one is configured.",
+    "retention": "Accepted wisdom packages and aggregate feedback are retained until withdrawn by a future supported removal process or removed by the service operator.",
+    "reuse": "Accepted packages may be searched, tested, revised, and redistributed to other SEA clients under the repository license and service policy.",
+    "service_status": "Community exchange is active only when this SEA instance has a registry URL and authenticated client credentials.",
     "privacy_limit": "Automated sensitive-data detection cannot guarantee anonymization. Review generalizations before contribution.",
 }
 
