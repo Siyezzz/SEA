@@ -12,8 +12,9 @@ from pydantic import Field
 from evolution import evaluate
 from kernel import Kernel
 from usage import acknowledge, require_acknowledgement, status
-from community import (HTTPTransport, active_sync_policy, evolve_sync_policy, init_local,
-                       queue_memory, search_path, sharing_choice, sync_pending)
+from community import (HTTPTransport, active_sync_policy, adopt_cached_package, cache_package,
+                       evolve_sync_policy, init_local, queue_memory, search_path, sharing_choice,
+                       sync_pending)
 
 Text = Annotated[str, Field(min_length=1, max_length=4000, pattern=r"\S")]
 Scope = Annotated[str, Field(min_length=1, max_length=200, pattern=r"\S")]
@@ -185,9 +186,15 @@ def create_server(database: Path, registry_url=None, client_id=None, client_secr
             if sharing_choice(k)["mode"] == "local-only":
                 raise ValueError("Community reading is not enabled")
             code, result = transport().request("GET", f"/v1/packages/{package_id}")
-        if code != 200:
-            raise ValueError(result.get("error", f"Registry returned HTTP {code}"))
-        return result
+            if code != 200:
+                raise ValueError(result.get("error", f"Registry returned HTTP {code}"))
+            return cache_package(k, result)
+
+    @server.tool()
+    def adopt_community_package(project: Scope, package_id: Scope) -> dict:
+        """Turn one explicitly fetched community package into a local candidate, never active advice."""
+        with connection() as k:
+            return adopt_cached_package(k, project, package_id)
 
     @server.tool()
     def record_community_feedback(package_id: Scope, task: Scope,

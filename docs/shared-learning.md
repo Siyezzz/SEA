@@ -41,9 +41,9 @@ Packages can branch rather than overwrite each other. Another SEA may narrow app
 
 1. Consult relevant local memory first.
 2. If a capability gap remains, query the authorized shared index. Return only a small set of relevant metadata records, not the entire catalog.
-3. Fetch a selected lesson only when its applicability warrants inspection.
-4. Fetch evidence, examples, or executable artifacts only when needed for verification or use.
-5. Revalidate in the local environment, cache useful material, and contribute outcomes only within the owner's sharing policy.
+3. Fetch a selected lesson only when its applicability warrants inspection; cache only that package.
+4. Adopt it as a local candidate, never as immediately trusted active advice.
+5. Revalidate it in the local environment. Local independent outcomes control local promotion, and community feedback remains within the owner's sharing policy.
 
 Proposed scopes are private, team, and community. These are access boundaries, not merely retrieval ranking tags. A shared logical network need not use one physical database. Keep index, content, and evidence budgets distinct; caching and selective retrieval improve latency but cannot guarantee instantaneous access.
 

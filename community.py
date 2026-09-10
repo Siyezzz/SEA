@@ -208,6 +208,52 @@ def queue_memory(kernel, memory_id, conditions, counterexamples, compatibility, 
             "privacy_findings": [], "notice": "Queued locally; no upload occurs until sync is invoked."}
 
 
+def cache_package(kernel, envelope):
+    """Persist one explicitly fetched public package without activating it as local advice."""
+    choice = sharing_choice(kernel)
+    if choice["mode"] == "local-only":
+        raise ValueError("Community reading is not enabled")
+    if not isinstance(envelope, dict) or set(envelope) != {"package", "state"}:
+        raise ValueError("Invalid registry package envelope")
+    package = validate_package(envelope["package"])
+    if envelope["state"] not in ("candidate", "active", "withdrawn"):
+        raise ValueError("Invalid registry package state")
+    init_local(kernel)
+    with kernel.db:
+        kernel.db.execute("INSERT INTO community_cache VALUES(?,?,?) ON CONFLICT(package_id) "
+                          "DO UPDATE SET payload=excluded.payload,fetched_at=excluded.fetched_at",
+                          (package["package_id"], canonical(envelope).decode(), now()))
+        kernel.event("community_fetched", {"package_id": package["package_id"],
+                                             "remote_state": envelope["state"]})
+    return envelope
+
+
+def adopt_cached_package(kernel, project, package_id):
+    """Create a local candidate from a fetched package; local evidence must promote it."""
+    choice = sharing_choice(kernel)
+    if choice["mode"] == "local-only":
+        raise ValueError("Community reading is not enabled")
+    init_local(kernel)
+    row = kernel.db.execute("SELECT payload FROM community_cache WHERE package_id=?", (package_id,)).fetchone()
+    if not row:
+        raise ValueError("Fetch the selected community package before adopting it")
+    envelope = json.loads(row["payload"])
+    package = validate_package(envelope["package"])
+    if envelope["state"] == "withdrawn":
+        raise ValueError("Withdrawn community packages cannot be adopted")
+    origin = f"community:{package_id}"
+    existing = kernel.db.execute("SELECT id FROM memories WHERE project=? AND origin=?", (project, origin)).fetchone()
+    if existing:
+        return {**kernel.get(existing["id"]), "adopted": False, "package_id": package_id}
+    evidence = canonical({"package_id": package_id, "remote_state": envelope["state"],
+                          "conditions": package["conditions"], "counterexamples": package["counterexamples"],
+                          "compatibility": package["compatibility"]}).decode()
+    memory_id = kernel.add(project, package["problem"], package["method"], evidence, origin)
+    kernel.event("community_adopted", {"package_id": package_id, "memory_id": memory_id,
+                                        "project": project, "state": "candidate"})
+    return {**kernel.get(memory_id), "adopted": True, "package_id": package_id}
+
+
 def sign(secret, timestamp, nonce, method, path, body):
     message = "\n".join((timestamp, nonce, method.upper(), path, hashlib.sha256(body).hexdigest())).encode()
     return hmac.new(secret.encode(), message, hashlib.sha256).hexdigest()

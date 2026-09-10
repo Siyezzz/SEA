@@ -36,7 +36,7 @@ flowchart TD
 | `archive_project` | Archive named-project lessons; preferences remain separate |
 | `compare_candidates` | Evaluate an external paired report; does not execute or install a successor |
 | `prepare_contribution` / `inspect_sync` / `sync_contributions` | Privacy-screen one active lesson, queue it locally, inspect state, and send a bounded batch |
-| `search_community` / `get_community_package` | Retrieve small metadata results first, then one selected full package |
+| `search_community` / `get_community_package` / `adopt_community_package` | Retrieve small metadata, fetch one selected package, and create a local candidate that still needs local validation |
 | `record_community_feedback` | Return an opaque task ID, reward, and evidence digest after an observed local trial |
 | `activate_sync_policy` | Activate bounded batch/retry configuration only after an eligible paired comparison |
 
@@ -68,6 +68,6 @@ The suite includes real MCP initialization, tool discovery, first-use gating, ve
 
 During local installation on 2026-09-06, Codex reported SEA installed and enabled. An SDK client launched the installed configuration, stored two user-stated preferences, and retrieved them through a new server process. The 2026-09-07 suite discovers all eighteen tools and tests the community protocol through real MCP, ASGI, and Workers-runtime boundaries.
 
-The community revision exposes eighteen tools and retains the wave icon. Other STDIO-capable hosts can connect using the [MCP client guide](mcp-clients.md); the Codex manifest itself is host-specific.
+The progressive-adoption revision exposes nineteen tools and retains the heart-wave icon. Other STDIO-capable hosts can connect using the [MCP client guide](mcp-clients.md); the Codex manifest itself is host-specific.
 
 Future milestones are measured cross-instance transfer, automatic evaluator integration, abuse controls, withdrawal, semantic retrieval, and recoverable successor handover. See [shared learning](shared-learning.md). A skill does not keep a task alive or schedule background experiments. Every SEA implementation component remains revisable within the user's authorization; the integration cannot rewrite the host's proprietary internals or its model weights.

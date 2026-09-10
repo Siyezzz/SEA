@@ -67,7 +67,7 @@ class MCPTests(unittest.IsolatedAsyncioTestCase):
         with tempfile.TemporaryDirectory() as directory:
             db = Path(directory) / "memory.sqlite3"
             async with client(db) as c:
-                self.assertEqual(len((await c.list_tools()).tools), 18)
+                self.assertEqual(len((await c.list_tools()).tools), 19)
                 candidate = decoded(await c.call_tool("record_candidate", dict(
                     project="alpha", trigger="CSV encoding", lesson="Inspect encoding",
                     evidence="synthetic:discovery", origin="discovery")))

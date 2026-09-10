@@ -8,8 +8,9 @@ from pathlib import Path
 
 from starlette.testclient import TestClient
 
-from community import (COMPONENT, DEFAULT_REVISION, build_package, evolve_sync_policy,
-                       HTTPTransport, privacy_findings, queue_memory, sign, sync_pending)
+from community import (COMPONENT, DEFAULT_REVISION, adopt_cached_package, build_package,
+                       cache_package, evolve_sync_policy, HTTPTransport, privacy_findings,
+                       queue_memory, sign, sync_pending)
 from evolution_demo import fixture
 from kernel import Kernel
 from registry import Registry, create_app
@@ -103,6 +104,22 @@ class CommunityTests(unittest.TestCase):
                               {"models": [], "tools": ["python"], "environments": []}, [first], 2)
         self.registry.publish(child, "client-a")
         self.assertEqual(self.registry.versions(first)["children"][0]["package_id"], child["package_id"])
+
+    def test_fetched_capability_is_local_candidate_until_locally_validated(self):
+        package = build_package(self.kernel.get(self.mid), [1, 1, 1], ["Python CSV"], [],
+                                {"models": [], "tools": ["python"], "environments": ["test"]})
+        cache_package(self.kernel, {"package": package, "state": "active"})
+        adopted = adopt_cached_package(self.kernel, "recipient-project", package["package_id"])
+        self.assertTrue(adopted["adopted"])
+        self.assertEqual(adopted["state"], "candidate")
+        self.assertEqual(self.kernel.recall("CSV", "recipient-project"), "")
+        duplicate = adopt_cached_package(self.kernel, "recipient-project", package["package_id"])
+        self.assertFalse(duplicate["adopted"])
+        for index in range(3):
+            memory = self.kernel.feedback(adopted["id"], f"recipient-holdout-{index}", 1,
+                                          f"synthetic:recipient:{index}")
+        self.assertEqual(memory["state"], "active")
+        self.assertIn(adopted["id"], self.kernel.recall("CSV", "recipient-project"))
 
     def test_signature_replay_and_tamper_rejected(self):
         body = b"{}"
