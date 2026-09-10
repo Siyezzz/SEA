@@ -9,7 +9,7 @@ from pathlib import Path
 from starlette.testclient import TestClient
 
 from community import (COMPONENT, DEFAULT_REVISION, build_package, evolve_sync_policy,
-                       privacy_findings, queue_memory, sign, sync_pending)
+                       HTTPTransport, privacy_findings, queue_memory, sign, sync_pending)
 from evolution_demo import fixture
 from kernel import Kernel
 from registry import Registry, create_app
@@ -66,6 +66,10 @@ class CommunityTests(unittest.TestCase):
             queue_memory(self.kernel, private, [], [], {"models": [], "tools": [], "environments": []})
         self.assertEqual(self.kernel.db.execute("SELECT count(*) FROM community_outbox").fetchone()[0], 0)
 
+    def test_canonical_json_matches_javascript_integral_number_form(self):
+        from community import canonical
+        self.assertEqual(canonical({"reward": 1.0}), b'{"reward":1}')
+
     def test_outbox_signed_publish_is_idempotent(self):
         queued = queue_memory(self.kernel, self.mid, ["Python"], ["Known UTF-8 fixture"],
                               {"models": ["model-family"], "tools": ["python"], "environments": ["test"]})
@@ -112,6 +116,22 @@ class CommunityTests(unittest.TestCase):
         headers["X-SEA-Nonce"] = "b" * 32
         with self.assertRaisesRegex(PermissionError, "signature"):
             self.registry.authenticate("POST", path, b'{"changed":true}', headers, contribution=True)
+
+    def test_http_transport_declares_product_user_agent(self):
+        from unittest.mock import patch
+        class Reply:
+            status = 200
+            def __enter__(self): return self
+            def __exit__(self, *_): return False
+            def read(self): return b'{}'
+        captured = {}
+        def fake_open(request, timeout):
+            captured["request"], captured["timeout"] = request, timeout
+            return Reply()
+        with patch("community.urlopen", fake_open):
+            code, _ = HTTPTransport("https://registry.example", "client", SECRET).request("GET", "/v1/search?q=x")
+        self.assertEqual(code, 200)
+        self.assertIn("SEA/0.1", captured["request"].get_header("User-agent"))
 
     def test_sync_policy_evolves_only_with_independent_eligible_report(self):
         report = fixture()

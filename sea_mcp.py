@@ -221,6 +221,9 @@ if __name__ == "__main__":
     parser.add_argument("--registry-url")
     parser.add_argument("--client-id")
     parser.add_argument("--client-secret-env", default="SEA_REGISTRY_SECRET")
+    parser.add_argument("--client-secret-file", type=Path,
+                        help="Private local file containing the client secret; never place it in the repository")
     args = parser.parse_args()
-    secret = os.getenv(args.client_secret_env) if args.registry_url or args.client_id else None
+    secret = (args.client_secret_file.expanduser().read_text(encoding="utf-8").strip()
+              if args.client_secret_file else os.getenv(args.client_secret_env))
     create_server(args.db, args.registry_url, args.client_id, secret).run(transport="stdio")

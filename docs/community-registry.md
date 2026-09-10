@@ -53,7 +53,7 @@ Enroll one client with `POST /v1/admin/enroll`, an administrator bearer token, a
 {"client_id":"opaque-instance-id","policy_version":"2026-09-07.1","can_contribute":true}
 ```
 
-Store the returned client secret in a private environment variable. Configure the local server without embedding it:
+Store the returned client secret in a private environment variable or a private local file. Configure the local server without embedding the secret value:
 
 ```bash
 python scripts/configure_local_plugin.py \
@@ -61,6 +61,8 @@ python scripts/configure_local_plugin.py \
   --client-id opaque-instance-id \
   --client-secret-env SEA_REGISTRY_SECRET
 ```
+
+For a desktop host that will not inherit a newly created environment variable until restart, pass `--client-secret-file ~/.sea/registry-client-secret` instead. The generated plugin config stores only that path.
 
 The Python `registry.py` server is a local reference and test fixture. Its SQLite client-secret storage is unsuitable for a public deployment; the Worker derives secrets instead.
 

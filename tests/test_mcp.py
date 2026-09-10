@@ -13,9 +13,9 @@ from evolution_demo import fixture
 ROOT = Path(__file__).resolve().parents[1]
 
 @asynccontextmanager
-async def client(db, acknowledge_fixture=True):
+async def client(db, acknowledge_fixture=True, extra_args=None):
     params = StdioServerParameters(command=sys.executable,
-        args=[str(ROOT / "sea_mcp.py"), "--db", str(db)])
+        args=[str(ROOT / "sea_mcp.py"), "--db", str(db)] + (extra_args or []))
     async with stdio_client(params) as (read, write):
         async with ClientSession(read, write) as session:
             await session.initialize()
@@ -128,3 +128,19 @@ class MCPTests(unittest.IsolatedAsyncioTestCase):
                 result = decoded(await c.call_tool("compare_candidates", dict(report_json=json.dumps(report))))
                 self.assertEqual(result, evaluate(report))
                 self.assertTrue((await c.call_tool("compare_candidates", dict(report_json="{}"))).isError)
+
+    async def test_private_secret_file_enables_configured_registry(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            secret = root / "client-secret"
+            secret.write_text("synthetic-client-secret-for-mcp-test", encoding="utf-8")
+            async with client(root / "memory.sqlite3", acknowledge_fixture=False, extra_args=[
+                "--registry-url", "https://registry.example.test", "--client-id", "synthetic-client",
+                "--client-secret-file", str(secret)]) as c:
+                from usage import POLICY_VERSION
+                decoded(await c.call_tool("acknowledge_usage", dict(version=POLICY_VERSION,
+                    mode="community-read", source="Synthetic test fixture acknowledgement.",
+                    user_acknowledged=True)))
+                result = decoded(await c.call_tool("get_usage_status", {}))
+                self.assertTrue(result["sharing_active"])
+                self.assertEqual(result["registry"]["url"], "https://registry.example.test")

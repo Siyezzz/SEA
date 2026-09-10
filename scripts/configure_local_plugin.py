@@ -10,7 +10,8 @@ import shutil
 import sys
 
 
-def configure(plugin: Path, database: Path, registry_url=None, client_id=None, client_secret_env="SEA_REGISTRY_SECRET"):
+def configure(plugin: Path, database: Path, registry_url=None, client_id=None,
+              client_secret_env="SEA_REGISTRY_SECRET", client_secret_file=None):
     root = Path(__file__).resolve().parents[1]
     plugin = plugin.expanduser().resolve()
     manifest_path = plugin / ".codex-plugin" / "plugin.json"
@@ -39,8 +40,11 @@ def configure(plugin: Path, database: Path, registry_url=None, client_id=None, c
         logoDark="./assets/sea-icon.png")
     server_args = [str(runtime / "sea_mcp.py"), "--db", str(database.expanduser().resolve())]
     if registry_url:
-        server_args += ["--registry-url", registry_url, "--client-id", client_id,
-                        "--client-secret-env", client_secret_env]
+        server_args += ["--registry-url", registry_url, "--client-id", client_id]
+        if client_secret_file:
+            server_args += ["--client-secret-file", str(Path(client_secret_file).expanduser().resolve())]
+        else:
+            server_args += ["--client-secret-env", client_secret_env]
     config = {"mcpServers": {"sea": {"command": str(Path(sys.executable).resolve()), "args": server_args}}}
     for path, value in ((manifest_path, manifest), (plugin / ".mcp.json", config)):
         path.write_text(json.dumps(value, indent=2) + "\n", encoding="utf-8")
@@ -55,5 +59,8 @@ if __name__ == "__main__":
     parser.add_argument("--client-id")
     parser.add_argument("--client-secret-env", default="SEA_REGISTRY_SECRET",
                         help="Environment variable name only; the secret is never written to plugin files")
+    parser.add_argument("--client-secret-file", type=Path,
+                        help="Private local secret file path; its contents are never written to plugin files")
     args = parser.parse_args()
-    configure(args.plugin, args.db, args.registry_url, args.client_id, args.client_secret_env)
+    configure(args.plugin, args.db, args.registry_url, args.client_id,
+              args.client_secret_env, args.client_secret_file)

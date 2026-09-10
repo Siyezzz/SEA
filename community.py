@@ -22,7 +22,17 @@ DEFAULT_REVISION = "community-sync-policy/1.0"
 
 
 def canonical(value):
-    return json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()
+    """Canonical JSON shared with the JavaScript registry, including integral floats."""
+    def normalize(item):
+        if isinstance(item, dict):
+            return {key: normalize(child) for key, child in item.items()}
+        if isinstance(item, list):
+            return [normalize(child) for child in item]
+        if isinstance(item, float) and math.isfinite(item) and item.is_integer():
+            return int(item)
+        return item
+    return json.dumps(normalize(value), ensure_ascii=False, sort_keys=True,
+                      separators=(",", ":"), allow_nan=False).encode()
 
 
 def now():
@@ -213,7 +223,9 @@ class HTTPTransport:
     def request(self, method, path, payload=None):
         body = b"" if payload is None else canonical(payload)
         timestamp, nonce = str(int(time.time())), secrets.token_hex(16)
-        headers = {"Content-Type": "application/json", "X-SEA-Client": self.client_id,
+        headers = {"Content-Type": "application/json",
+                   "User-Agent": "SEA/0.1 (+https://github.com/Siyezzz/SEA)",
+                   "X-SEA-Client": self.client_id,
                    "X-SEA-Timestamp": timestamp, "X-SEA-Nonce": nonce,
                    "X-SEA-Signature": sign(self.secret, timestamp, nonce, method, path, body),
                    "X-SEA-Policy-Version": POLICY_VERSION}
@@ -223,7 +235,12 @@ class HTTPTransport:
             with urlopen(request, timeout=self.timeout) as response:
                 return response.status, json.loads(response.read())
         except HTTPError as error:
-            return error.code, json.loads(error.read())
+            raw = error.read()
+            try:
+                payload = json.loads(raw)
+            except (json.JSONDecodeError, UnicodeDecodeError):
+                payload = {"error": raw.decode("utf-8", errors="replace")[:500] or str(error.reason)}
+            return error.code, payload
 
 
 def sync_pending(kernel, transport):
